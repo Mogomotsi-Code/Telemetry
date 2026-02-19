@@ -2,7 +2,7 @@
 
 namespace Telemetry.Context.Repository.Interfaces
 {
-    public interface IEventyRepository : IRepository<Domain.Models.Event>
+    public interface IEventRepository : IRepository<Domain.Models.Event>
     {
        
     }

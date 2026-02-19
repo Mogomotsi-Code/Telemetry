@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Telemetry.Context.DbContext;
 using Telemetry.Context.Repository.Interfaces;
+using Telemetry.Domain;
 using Telemetry.Domain.Models;
 
 namespace Telemetry.Context.Repository
@@ -15,27 +16,27 @@ namespace Telemetry.Context.Repository
         public CustomerRepository(TelemetryDb dbContext) {
             _dbContext = dbContext;
         }
-        public Task<Customer> CreateAsync(Customer entity)
+        Task<Response<Customer>> IRepository<Customer>.CreateAsync(Customer entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteAsync(Customer entity)
+        Task<Response<Customer>> IRepository<Customer>.DeleteAsync(Customer entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Customer>> GetAllAsync()
+        Task<Response<List<Customer>>> IRepository<Customer>.GetAllAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task<Customer> GetByIdAsync(params object[] keyValues)
+        Task<Response<Customer>> IRepository<Customer>.GetByIdAsync(params object[] keyValues)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Customer> UpdateAsync(Customer entity)
+        Task<Response<Customer>> IRepository<Customer>.UpdateAsync(Customer entity)
         {
             throw new NotImplementedException();
         }
