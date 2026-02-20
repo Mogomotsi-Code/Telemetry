@@ -16,7 +16,7 @@ builder.Services.AddHttpLogging(_ => { });
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("TenantCors", policy =>
-        policy.WithOrigins("http://localhost:64088", "https://localhost:64088")
+        policy.WithOrigins("http://localhost:64088", "https://localhost:64088","http://localhost:7284", "https://localhost:7284")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()
