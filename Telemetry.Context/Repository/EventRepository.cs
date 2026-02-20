@@ -93,7 +93,6 @@ namespace Telemetry.Context.Repository
                     .FirstOrDefault();
 
                 var latest = events.OrderByDescending(x => x.RecordedAt)
-                    .Select(x => new { x.RecordedAt, x.Value, x.Unit, x.Type, x.EventId })
                     .FirstOrDefault();
 
                 return new Response<Insight>
@@ -102,7 +101,7 @@ namespace Telemetry.Context.Repository
                     Message = "Device Insights retrieved successfully.",
                     Payload = new Insight
                     {
-                        Latest = events,
+                        Latest = latest,
                         Stats = new Stat
                         {
                             Min = stats?.Min ?? 0,

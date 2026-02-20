@@ -1,8 +1,9 @@
-export default function StatBox({ title, value }: { title: string; value: string }) {
+export default function StatBox({ title, value, color }: { title: string; value: string; color?: string }) {
+  const bgClass = color ?? "bg-white";
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 12, minWidth: 160 }}>
-      <div style={{ fontSize: 12, opacity: 0.7 }}>{title}</div>
-      <div style={{ fontSize: 20, fontWeight: 700 }}>{value}</div>
+    <div className={`${bgClass} border rounded-xl p-3 min-w-[160px]`}>
+      <div className="text-xs text-slate-600">{title}</div>
+      <div className="text-xl font-semibold mt-1">{value}</div>
     </div>
   );
 }
