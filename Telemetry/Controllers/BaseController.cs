@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
 using Telemetry.Domain.Tenancy.Interfaces;
 
 namespace Telemetry.Api.Controllers

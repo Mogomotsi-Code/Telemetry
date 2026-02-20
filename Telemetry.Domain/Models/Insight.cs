@@ -9,8 +9,8 @@ namespace Telemetry.Domain.Models
     public class Insight
     {
         public int WindowHours { get; set; }
-        public List<Event> Events { get; set; } = new List<Event>();
-        public Stat Stast { get; set; } = new Stat();
+        public List<Event> Latest { get; set; } = new List<Event>();
+        public Stat Stats { get; set; } = new Stat();
 
     }
 }

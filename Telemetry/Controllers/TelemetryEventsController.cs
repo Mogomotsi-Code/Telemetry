@@ -30,7 +30,7 @@ namespace Telemetry.Api.Controllers
 
             var results = await _eventRepository.GetDeviceEvents(deviceId, start,end);
             if(results.StatusCode == HttpStatusCode.OK)
-                return Ok(results.Payload);
+                return Ok(results);
             return BadRequest(new { error = "" });
         }
 
@@ -70,7 +70,7 @@ namespace Telemetry.Api.Controllers
             var results = await _eventRepository.GetDeviceInsights(deviceId, windowHours);
 
             if (results.StatusCode == HttpStatusCode.OK)
-                return  Ok(results.Payload);
+                return  Ok(results);
 
             return BadRequest(new { error = "" });
 

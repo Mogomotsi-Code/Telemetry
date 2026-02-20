@@ -12,6 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpLogging(_ => { });
 
+// Configure CORS policy for allowed origins used by frontend apps
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("TenantCors", policy =>
+        policy.WithOrigins("http://localhost:64088", "https://localhost:64088")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()
+    );
+});
+
 // Use configured connection string (below). Removed malformed duplicate registration.
 
 builder.Services.AddHealthChecks()
@@ -65,6 +76,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Enable CORS using the named policy
+app.UseCors("TenantCors");
+
 app.UseAuthorization();
 
 app.MapControllers();
@@ -74,7 +88,7 @@ app.MapHealthChecks("/healthz");
 using (IServiceScope scope = app.Services.CreateScope())
 {
     TelemetryDb db = scope.ServiceProvider.GetRequiredService<TelemetryDb>();
-    await DbInitializer.MigrateAndSeedAsync(db);
+    await DbInitializer.CreateAndSeedAsync(db);
 }
 
 app.UseHttpLogging();

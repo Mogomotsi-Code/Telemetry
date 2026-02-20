@@ -102,8 +102,8 @@ namespace Telemetry.Context.Repository
                     Message = "Device Insights retrieved successfully.",
                     Payload = new Insight
                     {
-                        Events = events,
-                        Stast = new Stat
+                        Latest = events,
+                        Stats = new Stat
                         {
                             Min = stats?.Min ?? 0,
                             Avg = stats?.Avg ?? 0,
