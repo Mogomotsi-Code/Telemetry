@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+    <File Path="SOLUTION.md" />
+  </Folder>
   <Project Path="Telemetry.Context/Telemetry.Context.csproj" Id="1c1bc17a-f781-4345-820a-3a4e036172fd" />
   <Project Path="Telemetry.Domain/Telemetry.Domain.csproj" Id="a2f19116-6cd2-4d71-9dc9-ec3465827a8e" />
   <Project Path="Telemetry.Ui/telemetry.ui.esproj">
