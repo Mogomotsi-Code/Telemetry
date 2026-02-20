@@ -1,20 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using Telemetry.Context.Repository.Interfaces;
 using Telemetry.Domain.Dtos;
 using Telemetry.Domain.Models;
+using Telemetry.Domain.Tenancy.Interfaces;
 
 namespace Telemetry.Api.Controllers
 {
     [ApiController]
     [Route("api/telemetry")]
-    public class TelemetryEventsController : Controller
+    public class TelemetryEventsController : BaseController
     {
         private IEventRepository _eventRepository;
+        private IDeviceRepository _deviceRepository;
 
-        public TelemetryEventsController(IEventRepository eventRepository)
+        public TelemetryEventsController(IEventRepository eventRepository, IDeviceRepository deviceRepository, ITenantProvider tenantProvider)
+            : base(tenantProvider)
         {
             _eventRepository = eventRepository;
+            _deviceRepository = deviceRepository;
         }
 
         [HttpGet("{deviceId}/telemetry")]
@@ -23,27 +28,25 @@ namespace Telemetry.Api.Controllers
             var end = until ?? DateTime.UtcNow;
             var start = since ?? end.AddHours(-24);
 
-            var events = await _db.TelemetryEvents
-                .Where(e => e.CustomerId == _tenant.CustomerId && e.DeviceId == deviceId)
-                .Where(e => e.RecordedAt >= start && e.RecordedAt <= end)
-                .OrderBy(e => e.RecordedAt)
-                .ToListAsync();
-
-            return Ok(events);
+            var results = await _eventRepository.GetDeviceEvents(deviceId, start,end);
+            if(results.StatusCode == HttpStatusCode.OK)
+                return Ok(results.Payload);
+            return BadRequest(new { error = "" });
         }
 
         [HttpPost]
         public async Task<IActionResult> Ingest([FromBody] TelemetryIn dto)
         {
-            if (!string.IsNullOrWhiteSpace(dto.CustomerId) && dto.CustomerId != _tenant.CustomerId)
+            if (!string.IsNullOrWhiteSpace(dto.CustomerId) && dto.CustomerId != _tenantProvider.CustomerId)
                 return BadRequest(new { error = "customerId mismatch with tenant context" });
 
-            var deviceExists = await _db.Devices.AnyAsync(d => d.CustomerId == _tenant.CustomerId && d.DeviceId == dto.DeviceId);
-            if (!deviceExists) return NotFound(new { error = "device not found" });
+            var results = await _deviceRepository.GetCutomerDevices(dto?.CustomerId);
+               
+            if (results.StatusCode != HttpStatusCode.OK || !results.Payload.Any(d => d.DeviceId.Equals(dto.DeviceId))) return NotFound(new { error = "device not found" });
 
             var entity = new Event
             {
-                CustomerId = _tenant.CustomerId,
+                CustomerId = _tenantProvider.CustomerId,
                 DeviceId = dto.DeviceId,
                 EventId = dto.EventId,
                 RecordedAt = dto.RecordedAt.ToUniversalTime(),
@@ -52,17 +55,26 @@ namespace Telemetry.Api.Controllers
                 Unit = dto.Unit ?? "C"
             };
 
-            await _eventRepository.CreateAsync(entity);
-
-            try
-            {
-                await _db.SaveChangesAsync();
+            var response = await _eventRepository.CreateAsync(entity);
+            if(response.StatusCode == HttpStatusCode.Created)
                 return Created("", new { inserted = true });
-            }
-            catch (DbUpdateException ex) when (ex.InnerException?.Message?.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return Ok(new { inserted = false, duplicate = true });
-            }
+
+            return BadRequest(new { error = "" });
+        }
+
+        [HttpGet("{deviceId}/insights")]
+        public async Task<IActionResult> GetInsights(string deviceId, [FromQuery] int windowHours = 24)
+        {
+            var end = DateTime.UtcNow;
+            var start = end.AddHours(-Math.Max(1, windowHours));
+            var results = await _eventRepository.GetDeviceInsights(deviceId, windowHours);
+
+            if (results.StatusCode == HttpStatusCode.OK)
+                return  Ok(results.Payload);
+
+            return BadRequest(new { error = "" });
+
+
         }
     }
 }
